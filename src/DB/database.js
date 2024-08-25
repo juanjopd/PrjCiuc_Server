@@ -11,3 +11,5 @@ sequelize.authenticate()
   .catch(err => console.error('Unable to connect to the database:', err));
 
 module.exports = { sequelize, Model, DataTypes };
+
+//relaciones en la base de datos......... (creo que era aca no recuerdo si algo me avisa xD)
