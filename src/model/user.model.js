@@ -1,10 +1,4 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
-
-const sequelize = new Sequelize("CiucBD", "root", "", {
-  host: "localhost",
-  dialect: "mysql",
-  port: 3306,
-});
+const { sequelize, Model, DataTypes } = require('../DB/database');
 
 class User extends Model {}
 
@@ -33,20 +27,9 @@ User.init(
     },
   },
   {
-    sequelize,
-    modelName: "User",
+    sequelize, 
+    modelName: 'User',
   }
 );
 
 module.exports = User;
-
-/* async function testConnection() {
-  try {
-    await sequelize.authenticate();
-    console.log("All Good!!");
-  } catch (err) {
-    console.error("All Bad!!", err);
-  }
-}
-
-testConnection(); */
