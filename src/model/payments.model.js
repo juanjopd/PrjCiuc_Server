@@ -1,4 +1,4 @@
-const {sequelize, Model, DataTypes} = require('../db/sequelize');
+const {sequelize, Model, DataTypes} = require('../DB/database');
 
 class Payment extends Model {}
 
@@ -8,7 +8,7 @@ Payment.init({
           autoIncrement: true,
           primaryKey: true,
       },
-      couserID:{
+      course_id:{
           type: DataTypes.INTEGER,
           allowNull: false,
       },

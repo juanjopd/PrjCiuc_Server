@@ -1,7 +1,7 @@
 const {sequelize, Model, DataTypes} = require('../DB/database');
 
-class Program extends Model {}
-Program.init({
+class Programs extends Model {}
+Programs.init({
     id:{
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -14,8 +14,8 @@ Program.init({
   },
   {
     sequelize,
-    modelName: 'Program',
+    modelName: 'Programs',
   }
 );
 
-module.exports = Program;
+module.exports = Programs;

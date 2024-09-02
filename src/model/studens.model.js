@@ -15,6 +15,10 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    couse_id:{
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     payment:{
       type: DataTypes.INTEGER,
       allowNull: true,
