@@ -135,4 +135,5 @@ Los archivos en `routes/` definen las rutas de la API y las asocian con los cont
 
 
 ## 4. **Relaciones en la Base de Datos**
-Mas adelante tendras que hacer las relaciones en la base de datos, mi recomendacion es hacerlo exactamente depues de la primera exportacionde de sequelize, para que no tengas problemas con las relaciones, es decir: [ACA](./src//DB//database.js)
+Las relacion de la base de datos ya se han definido, en el archivo de 'database.js', he aqui un breve diagrama de las relaciones implementadas🤑🤑🤑🤑:
+![imagen de BD](./img//image.png)
