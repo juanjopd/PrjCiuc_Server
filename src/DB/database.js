@@ -11,8 +11,6 @@ sequelize.authenticate()
   .catch(err => console.error('Unable to connect to the database:', err));
 
 module.exports = { sequelize, Model, DataTypes };
-
-//relaciones en la base de datos.
 const Students = require('../model/studens.model');
 const Courses = require('../model/courses.model');
 const Payments = require('../model/payments.model');
