@@ -14,9 +14,10 @@ const isTeacher = async (req, res, next) => {
 };
 
 const isAdmin = async (req, res, next) => {
-  console.log(req.body);
+  console.log(req.query);
   try {
-    const user = await User.findOne({ where:  req.body.email });
+    // Corregir la búsqueda para usar el objeto { email: req.body.email }
+    const user = await User.findOne({ where: { email: req.query.email } });
     
     // Verificar si el usuario fue encontrado
     if (!user) {
@@ -32,5 +33,6 @@ const isAdmin = async (req, res, next) => {
     return res.status(500).json({ message: 'Error al verificar permisos.', error });
   }
 };
+
 
 module.exports = { isTeacher, isAdmin };
