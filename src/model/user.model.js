@@ -1,6 +1,5 @@
 const {sequelize, Model, DataTypes} = require('../DB/database');
 
-
 class User extends Model {}
 
 User.init(
@@ -9,31 +8,35 @@ User.init(
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+      allowNull: false,
     },
-    name:{
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    studentCode:{
+    studentCode: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    password:{
+    password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    email:{
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    role: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    role:{
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    },
+  },
   {
     sequelize,
     modelName: 'User',
+    tableName: 'Users', 
+    timestamps: true, 
   }
 );
 

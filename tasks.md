@@ -2,8 +2,8 @@
 
 #### **Semana 1 (23/09 - 30/09):**
 - **Backend:**
-  - [ ] Configuración de la base de datos y relaciones (estudiantes, cursos, profesores, grupos, asistencias).
-  - [ ] Implementar registro de usuarios (API) con roles.
+  - [x] Configuración de la base de datos y relaciones (estudiantes, cursos, profesores, grupos, asistencias).
+  - [x] Implementar registro de usuarios (API) con roles.
   - [x] Configuración inicial de CORS y seguridad (autenticación básica).
   - [ ] Creación de los modelos de la base de datos en MySQL o similar.
   

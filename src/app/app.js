@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const userRouter = require('../router/user.router');
+const userRouter = require('../router/userRouter');
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/v1', userRouter);
+app.use('/api', userRouter);
 
 app.get('/', (req, res) => {
     let status = {
