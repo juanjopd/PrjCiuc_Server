@@ -8,19 +8,30 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-exports.validateLoginInput = [
-  body('email').isEmail().normalizeEmail(),
-  body('password').isLength({ min: 6 }),
+const validateLoginInput = [
+  body('email').isEmail().normalizeEmail().withMessage('Email inválido'),
+  body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
   handleValidationErrors
 ];
 
-exports.validateEmailInput = [
-  body('email').isEmail().normalizeEmail(),
+const validateEmailInput = [
+  body('email').isEmail().normalizeEmail().withMessage('Email inválido'),
   handleValidationErrors
 ];
 
-exports.validatePasswordResetInput = [
+const validatePasswordResetInput = [
   body('token').notEmpty(),
   body('newPassword').isLength({ min: 6 }),
   handleValidationErrors
 ];
+
+const validateRegistrationInput = [
+  body('name').notEmpty().withMessage('El nombre es requerido'),
+  body('email').isEmail().normalizeEmail().withMessage('Email inválido'),
+  body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+  body('role').isIn(['admin', 'teacher', 'student']).withMessage('Rol inválido'),
+  body('studentCode').if(body('role').equals('student')).notEmpty().withMessage('El código de estudiante es requerido para estudiantes'),
+  handleValidationErrors
+];
+
+module.exports = { validateRegistrationInput, validateLoginInput, validateEmailInput, validatePasswordResetInput };

@@ -1,7 +1,9 @@
 const User = require('../model/user.model');
 const Student = require('../model/studens.model');
 const Professor = require('../model/professors.model');
-const { hashPassword } = require('./utils/passwordUtils')
+const { hashPassword } = require('./utils/passwordUtils');
+const { sendEmail } = require('./utils/emailUtils');
+const { generateToken } = require('../middlewares/jwtUtils');
 
 const validateUniqueEmail = async (email) => {
   const existingUser = await User.findOne({ where: { email } });
@@ -9,62 +11,69 @@ const validateUniqueEmail = async (email) => {
 };
 
 class UserController {
-
   async register(req, res) {
     const { name, studentCode, password, email, role } = req.body;
 
-    // Validaciones
-    if (!name || !password || !email) {
-      return res.status(400).json({ message: 'Faltan datos requeridos.' });
-    }
-
-    const roleRegiter = role === 'admin' || role === 'teacher' ? role : 'student';
-    
-    if (role === 'student') {
-      if (!studentCode) {
-        return res.status(400).json({ message: 'Falta el codigo del estudiante.' });
-      }
-    }
-
     try {
-      // Verificar si el email ya está registrado (si existe, devolver error)
-      const isUnique = await validateUniqueEmail(email);
-      if (!isUnique) {
+      // Verificar si el email ya está registrado
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
         return res.status(409).json({ message: 'El email ya está en uso.' });
       }
 
-      const hashedPassword = await hashPassword(password) // Encriptar la contraseña
+      const hashedPassword = await hashPassword(password);
 
       const newUser = await User.create({
         name,
         studentCode,
         password: hashedPassword,
         email,
-        role: roleRegiter
+        role: role === 'admin' || role === 'teacher' ? role : 'student',
+        isVerified: false
       });
 
       if (role === 'student') {
-        const newStudent = await Student.create({
+        await Student.create({
           student_code: studentCode,
           student_name: name,
           student_email: email,
           group_id: null,
           payment: null,
-          carrerProgram: null,
+          careerProgram: null,
           gradeHistory: null,
         });
-      }
-
-      if (role === 'teacher') {
-        const newStudent = await Professor.create({
+      } else if (role === 'teacher') {
+        await Professor.create({
           name,
           email,
         });
       }
 
-      return res.status(201).json({ message: 'Usuario creado.', user: newUser });
+      /* // Generar token de verificación
+      const verificationToken = generateToken({ userId: newUser._id }, '24h');
+
+      // Enviar email de verificación
+      const verificationUrl = `${process.env.FRONTEND_URL}/verify-account/${verificationToken}`;
+      await sendEmail({
+        to: newUser.email,
+        subject: 'Verifica tu cuenta',
+        text: `Para verificar tu cuenta, haz clic en este enlace: ${verificationUrl}`
+      }); */
+
+      return res.status(201).json({ 
+        message: 'Usuario creado. Por favor',
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role
+        }
+      });
     } catch (error) {
-      return res.status(500).json({ message: 'Error al crear el usuario.', error });
+      console.error('Error en el registro:', error);
+      /* reversar creacion en la BD */
+      await User.destroy({ where: { email } });
+      return res.status(500).json({ message: 'Error al crear el usuario.', error: error.message });
     }
   }
 
@@ -105,7 +114,7 @@ class UserController {
     const { email, name, studentCode, password, role, newEmail } = req.body;
 
     try {
-      const user = await User.findOne({ where: { email: newEmail || email } });
+      const user = await User.findOne({ where: { email } });
       if (!user) {
         return res.status(404).json({ message: 'Usuario no encontrado.' });
       }
@@ -118,12 +127,16 @@ class UserController {
         user.email = newEmail;
       }
 
-      const hashedPassword = await hashPassword(password) // Encriptar la contraseña
+      // Encriptar la contraseña únicamente si se proporciona
+      let hashedPassword;
+      if (password) {
+        hashedPassword = await hashPassword(password);
+        user.password = hashedPassword;
+      }
 
       // Only update fields if they are provided
       if (name !== undefined) user.name = name;
       if (studentCode !== undefined) user.studentCode = studentCode;
-      if (password !== undefined) user.password = hashedPassword;
       if (role !== undefined) user.role = role;
 
       await user.save();
