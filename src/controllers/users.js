@@ -100,16 +100,17 @@ class UserController {
       return res.status(500).json({ message: 'Error al buscar los estudiantes.', error });
     }
   }
+
   async updateUser(req, res) {
     const { email, name, studentCode, password, role, newEmail } = req.body;
 
     try {
-      const user = await User.findOne({ where: { email } });
+      const user = await User.findOne({ where: { email: newEmail || email } });
       if (!user) {
         return res.status(404).json({ message: 'Usuario no encontrado.' });
       }
 
-      if (newEmail) {
+      if (newEmail && newEmail !== user.email) {
         const isUnique = await validateUniqueEmail(newEmail);
         if (!isUnique) {
           return res.status(409).json({ message: 'El nuevo email ya está en uso.' });
@@ -117,13 +118,34 @@ class UserController {
         user.email = newEmail;
       }
 
-      Object.assign(user, { name, studentCode, password, role });
+      // Only update fields if they are provided
+      if (name !== undefined) user.name = name;
+      if (studentCode !== undefined) user.studentCode = studentCode;
+      if (password !== undefined) user.password = password;
+      if (role !== undefined) user.role = role;
 
       await user.save();
 
       return res.status(200).json({ message: 'Usuario actualizado.', user });
     } catch (error) {
-      return res.status(500).json({ message: 'Error al actualizar el usuario.', error });
+      return res.status(500).json({ message: 'Error al actualizar el usuario.', error: error.message });
+    }
+  }
+
+  async deleteUser(req, res) {
+    const { email } = req.body;
+
+    try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado.' });
+      }
+
+      await user.destroy();
+
+      return res.status(204).json({ message: 'Usuario eliminado.' });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error al eliminar el usuario.', error: error.message });
     }
   }
 

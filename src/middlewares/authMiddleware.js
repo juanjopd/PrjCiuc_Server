@@ -38,7 +38,7 @@ const isAdmin = async (req, res, next) => {
     const user = await User.findOne({ where: { email } });
     
     if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado.' });
+      return res.status(404).json({ message: 'No se encontró el usuario, No tiene permisos para acceder a esta ruta.' });
     }
     
     if (user.role === 'admin') {

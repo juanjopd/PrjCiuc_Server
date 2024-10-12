@@ -15,5 +15,6 @@ router.post('/users', userController.register);
 router.put('/users', isAdmin, userController.updateUser);
 
 //#region DELETE
+router.delete('/users', isAdmin, userController.deleteUser);
 
 module.exports = router;
