@@ -1,7 +1,7 @@
 const User = require('../model/user.model');
 const Student = require('../model/studens.model');
 const Professor = require('../model/professors.model');
-const bcrypt = require('bcrypt');
+const { hashPassword } = require('./utils/passwordUtils')
 
 const validateUniqueEmail = async (email) => {
   const existingUser = await User.findOne({ where: { email } });
@@ -33,7 +33,7 @@ class UserController {
         return res.status(409).json({ message: 'El email ya está en uso.' });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10); // Encriptar la contraseña
+      const hashedPassword = await hashPassword(password) // Encriptar la contraseña
 
       const newUser = await User.create({
         name,
@@ -118,10 +118,12 @@ class UserController {
         user.email = newEmail;
       }
 
+      const hashedPassword = await hashPassword(password) // Encriptar la contraseña
+
       // Only update fields if they are provided
       if (name !== undefined) user.name = name;
       if (studentCode !== undefined) user.studentCode = studentCode;
-      if (password !== undefined) user.password = password;
+      if (password !== undefined) user.password = hashedPassword;
       if (role !== undefined) user.role = role;
 
       await user.save();

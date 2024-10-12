@@ -1,7 +1,7 @@
-const User = require('../models/userModel');
-const { generateToken, verifyToken } = require('../utils/jwtUtils');
-const { hashPassword, comparePassword } = require('../utils/passwordUtils');
-const { sendEmail } = require('../utils/emailUtils');
+const User = require('../model/user.model');
+const { generateToken, verifyToken } = require('../middlewares/jwtUtils');
+const { hashPassword, comparePassword } = require('./utils/passwordUtils');
+const { sendEmail } = require('./utils/emailUtils');
 
 const authController = {
   async login(req, res) {
