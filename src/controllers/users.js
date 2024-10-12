@@ -1,4 +1,6 @@
 const User = require('../model/user.model');
+const Student = require('../model/studens.model');
+const Professor = require('../model/professors.model');
 const bcrypt = require('bcrypt');
 
 const validateUniqueEmail = async (email) => {
@@ -17,6 +19,12 @@ class UserController {
     }
 
     const roleRegiter = role === 'admin' || role === 'teacher' ? role : 'student';
+    
+    if (role === 'student') {
+      if (!studentCode) {
+        return res.status(400).json({ message: 'Falta el codigo del estudiante.' });
+      }
+    }
 
     try {
       // Verificar si el email ya está registrado (si existe, devolver error)
@@ -34,6 +42,25 @@ class UserController {
         email,
         role: roleRegiter
       });
+
+      if (role === 'student') {
+        const newStudent = await Student.create({
+          student_code: studentCode,
+          student_name: name,
+          student_email: email,
+          group_id: null,
+          payment: null,
+          carrerProgram: null,
+          gradeHistory: null,
+        });
+      }
+
+      if (role === 'teacher') {
+        const newStudent = await Professor.create({
+          name,
+          email,
+        });
+      }
 
       return res.status(201).json({ message: 'Usuario creado.', user: newUser });
     } catch (error) {
@@ -60,7 +87,8 @@ class UserController {
       const users = await User.findAll();
       return res.status(200).json({ message: 'Usuarios encontrados.', users });
     } catch (error) {
-      return res.status(500).json({ message: 'Error al buscar los usuarios.', error });
+      console.error('Error en getAllUsers:', error);
+      return res.status(500).json({ message: 'Error al buscar los usuarios.', error: error.message });
     }
   }
 
@@ -70,6 +98,32 @@ class UserController {
       return res.status(200).json({ message: 'Estudiantes encontrados.', students });
     } catch (error) {
       return res.status(500).json({ message: 'Error al buscar los estudiantes.', error });
+    }
+  }
+  async updateUser(req, res) {
+    const { email, name, studentCode, password, role, newEmail } = req.body;
+
+    try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado.' });
+      }
+
+      if (newEmail) {
+        const isUnique = await validateUniqueEmail(newEmail);
+        if (!isUnique) {
+          return res.status(409).json({ message: 'El nuevo email ya está en uso.' });
+        } 
+        user.email = newEmail;
+      }
+
+      Object.assign(user, { name, studentCode, password, role });
+
+      await user.save();
+
+      return res.status(200).json({ message: 'Usuario actualizado.', user });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error al actualizar el usuario.', error });
     }
   }
 

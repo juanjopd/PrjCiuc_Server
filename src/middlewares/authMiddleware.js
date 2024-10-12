@@ -1,25 +1,42 @@
-const { User } = require('../model/user.model');
+const  User  = require('../model/user.model');
 
 const isTeacher = async (req, res, next) => {
   try {
-    const user = await User.findOne({ where: { id: req.user.email } });
-    if (user.role === 'teacher') {
+    const {email} = req.query;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Se requiere el email del usuario.' });
+    }
+
+    const user = await User.findOne({ where: { email } });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+    
+    if (user.role === 'teacher' || user.role === 'admin') {
       next();
-    } else {
+    }
+    else {
       return res.status(403).json({ message: 'No tienes permisos para acceder a esta ruta.' });
     }
   } catch (error) {
-    return res.status(500).json({ message: 'Error al verificar permisos.' });
+    console.error('Error en middleware isTeacher:', error);
+    return res.status(500).json({ message: 'Error al verificar permisos.', error: error.message });
   }
-};
+}
 
 const isAdmin = async (req, res, next) => {
-  console.log(req.query);
   try {
-    // Corregir la búsqueda para usar el objeto { email: req.body.email }
-    const user = await User.findOne({ where: { email: req.query.email } });
+    // Asumimos que el email del usuario se pasa como query parameter
+    const { email } = req.query;
     
-    // Verificar si el usuario fue encontrado
+    if (!email) {
+      return res.status(400).json({ message: 'Se requiere el email del usuario.' });
+    }
+
+    const user = await User.findOne({ where: { email } });
+    
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
     }
@@ -30,7 +47,8 @@ const isAdmin = async (req, res, next) => {
       return res.status(403).json({ message: 'No tienes permisos para acceder a esta ruta.' });
     }
   } catch (error) {
-    return res.status(500).json({ message: 'Error al verificar permisos.', error });
+    console.error('Error en middleware isAdmin:', error);
+    return res.status(500).json({ message: 'Error al verificar permisos.', error: error.message });
   }
 };
 
