@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const userRouter = require('../router/userRouter');
+const authRouter = require('../router/authRouter');
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', userRouter);
+app.use('/auth', authRouter);
 
 app.get('/', (req, res) => {
     let status = {
