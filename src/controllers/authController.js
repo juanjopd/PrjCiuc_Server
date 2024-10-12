@@ -13,13 +13,13 @@ const authController = {
         return res.status(401).json({ message: 'Credenciales inválidas' });
       }
       
-      if (!user.isVerified) {
+     /*  if (!user.isVerified) {
         return res.status(403).json({ message: 'Cuenta no verificada' });
-      }
+      } */
       
       const token = generateToken({ userId: user._id });
-      res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-      
+      console.log(token);
+      res.cookie('token', token, { httpOnly: true });
       res.json({ message: 'Login exitoso', user: { id: user._id, email: user.email } });
     } catch (error) {
       res.status(500).json({ message: 'Error en el servidor', error: error.message });
