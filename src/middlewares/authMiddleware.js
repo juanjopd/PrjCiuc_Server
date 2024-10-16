@@ -30,13 +30,13 @@ const isAdmin = async (req, res, next) => {
   try {
     // Asumimos que el email del usuario se pasa como query parameter
     const { email } = req.query;
+    console.log("Email:", email);
     
     if (!email) {
       return res.status(400).json({ message: 'Se requiere el email del usuario.' });
     }
 
     const user = await User.findOne({ where: { email } });
-    
     if (!user) {
       return res.status(404).json({ message: 'No se encontró el usuario, No tiene permisos para acceder a esta ruta.' });
     }

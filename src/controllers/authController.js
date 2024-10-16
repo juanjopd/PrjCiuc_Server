@@ -6,25 +6,39 @@ const { sendEmail } = require('./utils/emailUtils');
 const authController = {
   async login(req, res) {
     try {
-      const { email, password } = req.body;
-      const user = await User.findOne({ email });
-      
-      if (!user || !(await comparePassword(password, user.password))) {
-        return res.status(401).json({ message: 'Credenciales inválidas' });
-      }
-      
-     /*  if (!user.isVerified) {
-        return res.status(403).json({ message: 'Cuenta no verificada' });
-      } */
-      
-      const token = generateToken({ userId: user._id });
-      console.log(token);
-      res.cookie('token', token, { httpOnly: true });
-      res.json({ message: 'Login exitoso', user: { id: user._id, email: user.email } });
+        const { email, password } = req.body;
+        console.log("Attempting to login with email:", email); 
+
+        const user = await User.findOne({
+            where: { email: email.toLowerCase() }
+        });
+
+        console.log("User found:", user ? user.email : "No user found"); 
+
+        if (!user) {
+            return res.status(401).json({ message: 'Credenciales inválidas' });
+        }
+
+        if (!(await comparePassword(password, user.password))) {
+            return res.status(401).json({ message: 'Credenciales inválidas' });
+        }
+
+        const token = generateToken({ userId: user.user_id });
+        res.json({ 
+            message: 'Login exitoso', 
+            user: { 
+                id: user.user_id, 
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                token: token
+            } 
+        });
     } catch (error) {
-      res.status(500).json({ message: 'Error en el servidor', error: error.message });
+        console.error("Login error:", error); 
+        res.status(500).json({ message: 'Error en el servidor', error: error.message });
     }
-  },
+},
 
   async logout(req, res) {
     res.clearCookie('token');

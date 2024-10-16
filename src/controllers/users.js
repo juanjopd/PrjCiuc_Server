@@ -13,7 +13,7 @@ const validateUniqueEmail = async (email) => {
 class UserController {
   async register(req, res) {
     const { name, studentCode, password, email, role } = req.body;
-
+    console.log("email:", email);
     try {
       // Verificar si el email ya está registrado
       const existingUser = await User.findOne({ where: { email } });
