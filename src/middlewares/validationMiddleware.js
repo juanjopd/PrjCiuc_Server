@@ -29,7 +29,7 @@ const validateRegistrationInput = [
   body('name').notEmpty().withMessage('El nombre es requerido'),
   body('email').isEmail().normalizeEmail().withMessage('Email inválido'),
   body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
-  body('role').isIn(['admin', 'teacher', 'student']).withMessage('Rol inválido'),
+  body('role').isIn(['admin', 'teacher', 'student', 'adminStudent', 'teacherStudent']).withMessage('Rol inválido'),
   body('studentCode').if(body('role').equals('student')).notEmpty().withMessage('El código de estudiante es requerido para estudiantes'),
   handleValidationErrors
 ];
