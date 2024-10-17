@@ -1,56 +1,57 @@
-const { Sequelize, Model, DataTypes } = require('sequelize');
+const { Sequelize, Model, DataTypes } = require("sequelize");
 
-const sequelize = new Sequelize("CiucBD", "root", "123456", {
+const sequelize = new Sequelize("CiucBD", "root", "", {
   host: "localhost",
   dialect: "mysql",
   port: 3306,
 });
 
-sequelize.authenticate()
-  .then(() => console.log('Connection has been established successfully.'))
-  .catch(err => console.error('Unable to connect to the database:', err));
+sequelize
+  .authenticate()
+  .then(() => console.log("Connection has been established successfully."))
+  .catch((err) => console.error("Unable to connect to the database:", err));
 
 module.exports = { sequelize, Model, DataTypes };
 
 //#region Modelos y relaciones
-const Students = require('../model/studens.model');
-const Courses = require('../model/courses.model');
-const Payments = require('../model/payments.model');
-const Programs = require('../model/program.model');
-const Professors = require('../model/professors.model'); // Modelo nuevo
-const Groups = require('../model/groups.model'); // Modelo nuevo
-const Attendances = require('../model/attendances.model'); // Modelo nuevo
+const Students = require("../model/studens.model");
+const Courses = require("../model/courses.model");
+const Payments = require("../model/payments.model");
+const Programs = require("../model/program.model");
+const Professors = require("../model/professors.model"); // Modelo nuevo
+const Groups = require("../model/groups.model"); // Modelo nuevo
+const Attendances = require("../model/attendances.model"); // Modelo nuevo
 
 // Definir relaciones
 
 // Relación 1:N entre Courses y Students
-Students.belongsTo(Courses, {foreignKey: 'course_id'}); 
-Courses.hasMany(Students, {foreignKey: 'course_id'});
+Students.belongsTo(Courses, { foreignKey: "course_id" });
+Courses.hasMany(Students, { foreignKey: "course_id" });
 
 // Relación 1:1 entre Students y Payments
-Students.hasOne(Payments, {foreignKey: 'student_id'}); 
-Payments.belongsTo(Students, {foreignKey: 'student_id'});
+Students.hasOne(Payments, { foreignKey: "student_id" });
+Payments.belongsTo(Students, { foreignKey: "student_id" });
 
 // Relación 1:N entre Payments y Courses
-Payments.belongsTo(Courses, {foreignKey: 'course_id'});
-Courses.hasMany(Payments, {foreignKey: 'course_id'});
+Payments.belongsTo(Courses, { foreignKey: "course_id" });
+Courses.hasMany(Payments, { foreignKey: "course_id" });
 
 // Relación 1:N entre Students y Programs
-Students.belongsTo(Programs, {foreignKey: 'program_id'}); 
-Programs.hasMany(Students, {foreignKey: 'program_id'});
+Students.belongsTo(Programs, { foreignKey: "program_id" });
+Programs.hasMany(Students, { foreignKey: "program_id" });
 
 // Relación 1:N entre Courses y Professors
-Courses.belongsTo(Professors, {foreignKey: 'professor_id'});
-Professors.hasMany(Courses, {foreignKey: 'professor_id'});
+Courses.belongsTo(Professors, { foreignKey: "professor_id" });
+Professors.hasMany(Courses, { foreignKey: "professor_id" });
 
 // Relación 1:N entre Groups y Courses
-Groups.hasMany(Courses, {foreignKey: 'group_id'});
-Courses.belongsTo(Groups, {foreignKey: 'group_id'});
+Groups.hasMany(Courses, { foreignKey: "group_id" });
+Courses.belongsTo(Groups, { foreignKey: "group_id" });
 
 // Relación 1:N entre Students y Attendances
-Students.hasMany(Attendances, {foreignKey: 'student_id'});
-Attendances.belongsTo(Students, {foreignKey: 'student_id'});
+Students.hasMany(Attendances, { foreignKey: "student_id" });
+Attendances.belongsTo(Students, { foreignKey: "student_id" });
 
 // Relación 1:N entre Courses y Attendances
-Courses.hasMany(Attendances, {foreignKey: 'course_id'});
-Attendances.belongsTo(Courses, {foreignKey: 'course_id'});
+Courses.hasMany(Attendances, { foreignKey: "course_id" });
+Attendances.belongsTo(Courses, { foreignKey: "course_id" });
