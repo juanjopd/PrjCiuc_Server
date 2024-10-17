@@ -1,5 +1,9 @@
 const User = require('../model/user.model');
-const bcrypt = require('bcrypt');
+const Student = require('../model/studens.model');
+const Professor = require('../model/professors.model');
+const { hashPassword } = require('./utils/passwordUtils');
+const { sendEmail } = require('./utils/emailUtils');
+const { generateToken } = require('../middlewares/jwtUtils');
 
 const validateUniqueEmail = async (email) => {
   const existingUser = await User.findOne({ where: { email } });
@@ -7,37 +11,69 @@ const validateUniqueEmail = async (email) => {
 };
 
 class UserController {
-
   async register(req, res) {
     const { name, studentCode, password, email, role } = req.body;
-
-    // Validaciones
-    if (!name || !password || !email) {
-      return res.status(400).json({ message: 'Faltan datos requeridos.' });
-    }
-
-    const roleRegiter = role === 'admin' || role === 'teacher' ? role : 'student';
-
+    console.log("email:", email);
     try {
-      // Verificar si el email ya está registrado (si existe, devolver error)
-      const isUnique = await validateUniqueEmail(email);
-      if (!isUnique) {
+      // Verificar si el email ya está registrado
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
         return res.status(409).json({ message: 'El email ya está en uso.' });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10); // Encriptar la contraseña
+      const hashedPassword = await hashPassword(password);
 
       const newUser = await User.create({
         name,
         studentCode,
         password: hashedPassword,
         email,
-        role: roleRegiter
+        role: role === 'admin' || role === 'teacher' ? role : 'student',
+        isVerified: false
       });
 
-      return res.status(201).json({ message: 'Usuario creado.', user: newUser });
+      if (role === 'student') {
+        await Student.create({
+          student_code: studentCode,
+          student_name: name,
+          student_email: email,
+          group_id: null,
+          payment: null,
+          careerProgram: null,
+          gradeHistory: null,
+        });
+      } else if (role === 'teacher') {
+        await Professor.create({
+          name,
+          email,
+        });
+      }
+
+      /* // Generar token de verificación
+      const verificationToken = generateToken({ userId: newUser._id }, '24h');
+
+      // Enviar email de verificación
+      const verificationUrl = `${process.env.FRONTEND_URL}/verify-account/${verificationToken}`;
+      await sendEmail({
+        to: newUser.email,
+        subject: 'Verifica tu cuenta',
+        text: `Para verificar tu cuenta, haz clic en este enlace: ${verificationUrl}`
+      }); */
+
+      return res.status(201).json({ 
+        message: 'Usuario creado. Por favor',
+        user: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role
+        }
+      });
     } catch (error) {
-      return res.status(500).json({ message: 'Error al crear el usuario.', error });
+      console.error('Error en el registro:', error);
+      /* reversar creacion en la BD */
+      await User.destroy({ where: { email } });
+      return res.status(500).json({ message: 'Error al crear el usuario.', error: error.message });
     }
   }
 
@@ -60,7 +96,8 @@ class UserController {
       const users = await User.findAll();
       return res.status(200).json({ message: 'Usuarios encontrados.', users });
     } catch (error) {
-      return res.status(500).json({ message: 'Error al buscar los usuarios.', error });
+      console.error('Error en getAllUsers:', error);
+      return res.status(500).json({ message: 'Error al buscar los usuarios.', error: error.message });
     }
   }
 
@@ -70,6 +107,60 @@ class UserController {
       return res.status(200).json({ message: 'Estudiantes encontrados.', students });
     } catch (error) {
       return res.status(500).json({ message: 'Error al buscar los estudiantes.', error });
+    }
+  }
+
+  async updateUser(req, res) {
+    const { email, name, studentCode, password, role, newEmail } = req.body;
+
+    try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado.' });
+      }
+
+      if (newEmail && newEmail !== user.email) {
+        const isUnique = await validateUniqueEmail(newEmail);
+        if (!isUnique) {
+          return res.status(409).json({ message: 'El nuevo email ya está en uso.' });
+        } 
+        user.email = newEmail;
+      }
+
+      // Encriptar la contraseña únicamente si se proporciona
+      let hashedPassword;
+      if (password) {
+        hashedPassword = await hashPassword(password);
+        user.password = hashedPassword;
+      }
+
+      // Only update fields if they are provided
+      if (name !== undefined) user.name = name;
+      if (studentCode !== undefined) user.studentCode = studentCode;
+      if (role !== undefined) user.role = role;
+
+      await user.save();
+
+      return res.status(200).json({ message: 'Usuario actualizado.', user });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error al actualizar el usuario.', error: error.message });
+    }
+  }
+
+  async deleteUser(req, res) {
+    const { email } = req.body;
+
+    try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado.' });
+      }
+
+      await user.destroy();
+
+      return res.status(204).json({ message: 'Usuario eliminado.' });
+    } catch (error) {
+      return res.status(500).json({ message: 'Error al eliminar el usuario.', error: error.message });
     }
   }
 

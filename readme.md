@@ -1,5 +1,8 @@
 # Configuración de la Base de Datos y Uso de CORS
 
+<!-- link para seccion de usuarios -->
+### **[Rutas para Usuarios](#usuarios)**
+
 ## 1. **Configuración de la Base de Datos MySQL**
 
 ### 1.1 **Acceder a MySQL**
@@ -137,3 +140,40 @@ Los archivos en `routes/` definen las rutas de la API y las asocian con los cont
 ## 4. **Relaciones en la Base de Datos**
 Las relacion de la base de datos ya se han definido, en el archivo de 'database.js', he aqui un breve diagrama de las relaciones implementadas🤑🤑🤑🤑:
 ![imagen de BD](./img//image.png)
+
+
+
+# Usuarios 
+
+## 1. **Registro de Usuarios**
+
+### Formato de Solicitud Json Estudiantes
+    ```json
+    {
+    "name": "Juan Pérez",
+    "studentCode": "201912345",
+    "password": "contraseña123",
+    "email": "juanperez@gmail.com",
+    "role": "student"
+    }
+    ```
+
+### Formato de Solicitud Json Profesores
+    ```json
+    {
+    "name": "Profesor González",
+    "password": "contraseña123",
+    "email": "juanperez@gmail.com",
+    "role": "teacher"
+    }
+    ```
+
+### Formato de Solicitud Json Administradores
+    ```json
+    {
+    "name": "Admin",
+    "password": "contraseña123",
+    "email": "juanperez@gmail.com",
+    "role": "admin"
+    }
+    ```
