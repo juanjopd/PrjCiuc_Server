@@ -17,6 +17,12 @@ router.post('/users',
   userController.register  // Controlador de registro
 );
 
+// Obtener Roles existentes
+router.get('/roles', (req, res) => {
+    const roles = ['admin', 'teacher', 'student', 'teacherStudent', 'adminStudent'];
+    res.json(roles);
+});
+
 
 //#region PUT
 router.put('/users', isAdmin, userController.updateUser);
