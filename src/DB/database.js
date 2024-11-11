@@ -48,6 +48,10 @@ Professors.hasMany(Courses, { foreignKey: "professor_id" });
 Groups.hasMany(Courses, { foreignKey: "group_id" });
 Courses.belongsTo(Groups, { foreignKey: "group_id" });
 
+// Relación 1:N entre Professors y Groups
+Groups.belongsTo(Professors, { foreignKey: "professor_id" });
+Professors.hasMany(Groups, { foreignKey: "professor_id" });
+
 // Relación 1:N entre Students y Attendances
 Students.hasMany(Attendances, { foreignKey: "student_id" });
 Attendances.belongsTo(Students, { foreignKey: "student_id" });

@@ -1,10 +1,10 @@
-const {sequelize, Model, DataTypes} = require('../DB/database');
+const { sequelize, Model, DataTypes } = require("../DB/database");
 
 class Student extends Model {}
 
 Student.init(
   {
-    student_code:{
+    student_code: {
       type: DataTypes.INTEGER,
     },
     student_name: {
@@ -15,31 +15,31 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    couse_id:{
+    couse_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    payment:{
+    payment: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-   carrerProgram:{
-    type: DataTypes.STRING,
-    allowNull: true,
-   },
-   gradeHistory:{
-    type: DataTypes.STRING,
-    allowNull: true,
-   },
-   group_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-   }
+    carrerProgram: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    gradeHistory: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    group_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     sequelize,
-    modelName: 'Student',
+    modelName: "Student",
   }
-)
+);
 
 module.exports = Student;

@@ -9,7 +9,14 @@ Groups.init(
     tipo: { type: DataTypes.STRING, allowNull: false },
     nivel: { type: DataTypes.STRING, allowNull: false },
     idioma: { type: DataTypes.STRING, allowNull: false },
-    //profesor_id: { type: DataTypes.INTEGER, allowNull: false },
+    profesor_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "Professors",
+        key: "id",
+      },
+    },
   },
   { sequelize, modelName: "groups", tableName: "Groups", timestamps: true }
 );

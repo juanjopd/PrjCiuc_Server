@@ -11,7 +11,7 @@ const {
 
 //#region GET
 router.get("/users", userController.getAllUsers);
-router.get("/users/students", isTeacher, userController.getAllStudents);
+router.get("/users/students", userController.getAllStudents);
 
 //#region GET
 router.get("/groups", groupController.getAllGroups);

@@ -130,6 +130,7 @@ class UserController {
         .status(200)
         .json({ message: "Estudiantes encontrados.", students });
     } catch (error) {
+      console.error("Error al buscar los estudiantes:", error);
       return res
         .status(500)
         .json({ message: "Error al buscar los estudiantes.", error });

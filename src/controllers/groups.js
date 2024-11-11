@@ -3,29 +3,17 @@ const Professor = require("../model/professors.model");
 
 class GroupController {
   async register(req, res) {
-    const { name, grupo, nivel, idioma, profesor } = req.body;
+    const { name, tipo, grupo, nivel, idioma, profesor } = req.body;
     try {
       // Create the new group entry
       const newGroup = await Group.create({
         name,
+        tipo,
         grupo,
         nivel,
         idioma,
-        profesor: null,
+        profesor_id: profesor,
       });
-
-      // Associate group with the professor if required
-      /* const existingProfessor = await Professor.findOne({
-        where: { name: profesor },
-      });
-      if (existingProfessor) {
-        // Assuming there is a relation between Group and Professor
-        await newGroup.setProfessor(existingProfessor);
-      } else {
-        // If no matching professor is found, create one
-        const newProfessor = await Professor.create({ name: profesor });
-        await newGroup.setProfessor(newProfessor);
-      } */
 
       // Send success response
       return res.status(201).json({

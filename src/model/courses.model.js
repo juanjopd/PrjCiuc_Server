@@ -1,20 +1,25 @@
-const {sequelize, Model, DataTypes} = require('../DB/database');
+const { sequelize, Model, DataTypes } = require("../DB/database");
 
-class   Courses extends Model {}
-Courses.init({
-    id:{
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
+class Courses extends Model {}
+Courses.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    name:{
-        type: DataTypes.STRING,
-        allowNull: false,
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
+    grade: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    }
   },
   {
     sequelize,
-    modelName: 'Courses',
+    modelName: "Courses",
   }
 );
 

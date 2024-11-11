@@ -1,5 +1,5 @@
 const { body, validationResult } = require("express-validator");
-const { Professors } = require("../model/professors.model");
+const Professors = require("../model/professors.model");
 
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -51,25 +51,27 @@ const validateRegistrationInput2 = [
   body("idioma")
     .isIn(["ingles", "italiano", "portugues "])
     .withMessage("idioma es inválido"),
-];
-/* body("profesor").custom(async (value) => {
-  try {
-    const professor = await Professors.findByPk(value); // Buscar por ID
-    if (!professor) {
-      throw new Error("profesor es inválido");
+  body("profesor").custom(async (value) => {
+    try {
+      const professor = await Professors.findByPk(value); // Buscar por ID
+      if (!professor) {
+        throw new Error("profesor es inválido");
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error al validar el profesor");
     }
-    return true;
-  } catch (error) {
-    throw new Error("Error al validar el profesor");
-  }
-}),
-(req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-}, */
+  }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+/*  */
 
 module.exports = {
   validateRegistrationInput,
