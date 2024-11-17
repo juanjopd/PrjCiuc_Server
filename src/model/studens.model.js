@@ -6,6 +6,7 @@ Student.init(
   {
     student_code: {
       type: DataTypes.INTEGER,
+      primaryKey: true,
     },
     student_name: {
       type: DataTypes.STRING,
@@ -15,7 +16,11 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    couse_id: {
+    semestre: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    course_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
@@ -23,8 +28,8 @@ Student.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    carrerProgram: {
-      type: DataTypes.STRING,
+    program_id: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
     gradeHistory: {
@@ -34,6 +39,10 @@ Student.init(
     group_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      references: {
+        model: "Groups", // Nombre del modelo al que hace referencia
+        key: "id", // Campo de referencia en el modelo `Groups`
+      },
     },
   },
   {

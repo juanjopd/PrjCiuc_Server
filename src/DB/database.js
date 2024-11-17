@@ -21,6 +21,8 @@ const Programs = require("../model/program.model");
 const Professors = require("../model/professors.model"); // Modelo nuevo
 const Groups = require("../model/groups.model"); // Modelo nuevo
 const Attendances = require("../model/attendances.model"); // Modelo nuevo
+const Grades = require("../model/grade.model");
+const Facultad = require("../model/facultad.model");
 
 // Definir relaciones
 
@@ -59,3 +61,15 @@ Attendances.belongsTo(Students, { foreignKey: "student_id" });
 // Relación 1:N entre Courses y Attendances
 Courses.hasMany(Attendances, { foreignKey: "course_id" });
 Attendances.belongsTo(Courses, { foreignKey: "course_id" });
+
+// Relación entre Students y Grades (1:N)
+Students.hasMany(Grades, { foreignKey: "student_id" });
+Grades.belongsTo(Students, { foreignKey: "student_id" });
+
+// Relación 1:N entre Students y Groups
+Students.belongsTo(Groups, { foreignKey: "group_id" });
+Groups.hasMany(Students, { foreignKey: "group_id" });
+
+// Relacion N:1 entre programam y facultad
+Facultad.hasMany(Programs, { foreignKey: "facultad_id" });
+Programs.belongsTo(Facultad, { foreignKey: "facultad_id" });

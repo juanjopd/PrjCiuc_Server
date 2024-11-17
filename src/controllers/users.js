@@ -4,6 +4,8 @@ const Professor = require("../model/professors.model");
 const { hashPassword } = require("./utils/passwordUtils");
 const { sendEmail } = require("./utils/emailUtils");
 const { generateToken } = require("../middlewares/jwtUtils");
+const Programs = require("../model/program.model");
+const { Sequelize } = require('sequelize');
 
 const validateUniqueEmail = async (email) => {
   const existingUser = await User.findOne({ where: { email } });
@@ -12,8 +14,9 @@ const validateUniqueEmail = async (email) => {
 
 class UserController {
   async register(req, res) {
-    const { name, studentCode, password, email, role } = req.body;
-    console.log("email:", email);
+    const { name, studentCode, password, email, role, semestre, programa } =
+      req.body;
+    console.log("Datos recibidos:", req.body);
     try {
       // Verificar si el email ya está registrado
       const existingUser = await User.findOne({ where: { email } });
@@ -51,9 +54,10 @@ class UserController {
           student_code: studentCode,
           student_name: name,
           student_email: email,
+          semestre: semestre,
           group_id: null, // Inicialmente nulo
           payment: null, // Puedes agregar lógica adicional si se requiere
-          careerProgram: null,
+          program_id: programa,
           gradeHistory: null,
         });
       } else if (assignedRole === "teacher") {
@@ -136,6 +140,48 @@ class UserController {
         .json({ message: "Error al buscar los estudiantes.", error });
     }
   }
+
+  async getProgramas(req, res) {
+    try {
+      const programas = await Programs.findAll();
+      return res.status(200).json(programas);
+    } catch (error) {
+      console.error("Error al obtener los programas:", error);
+      return res.status(500).json({ message: "Error al obtener programas." });
+    }
+  }
+
+  async getEnrollmentCountByProgram(req, res) {
+    try {
+        const enrollmentCount = await Student.findAll({
+            attributes: [
+                'program_id',
+                [Sequelize.fn('COUNT', Sequelize.col('program_id')), 'studentCount'],
+            ],
+            include: [
+                {
+                    model: Programs,
+                    attributes: ['name'], // Get program name
+                },
+            ],
+            group: ['program_id', 'Program.id'], // Group by program_id and Program ID
+        });
+
+        // Transform the response to an array of objects with 'program' and 'count'
+        const formattedData = enrollmentCount.map(item => ({
+            program: item.Program.name,
+            count: item.dataValues.studentCount,
+        }));
+
+        return res.status(200).json(formattedData);
+    } catch (error) {
+        console.error("Error al obtener la cantidad de estudiantes por programa:", error);
+        return res.status(500).json({
+            message: "Error al obtener la cantidad de estudiantes por programa.",
+            error: error.message,
+        });
+    }
+}
 
   async updateUser(req, res) {
     const { email, name, studentCode, password, role, newEmail } = req.body;
