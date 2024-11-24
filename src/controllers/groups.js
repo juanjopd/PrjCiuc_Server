@@ -1,5 +1,7 @@
 const Group = require("../model/groups.model");
 const Professors = require("../model/professors.model");
+const Student = require("../model/studens.model");
+const Courses = require("../model/courses.model");
 const PDFDocument = require("pdfkit");
 const { Sequelize } = require("sequelize");
 const path = require("path");
@@ -239,6 +241,129 @@ class GroupController {
       });
     }
   }
+
+  async addStudentesToGroup(req, res) {
+    const { id, students } = req.body;
+
+    if (!id || !Array.isArray(students) || students.length === 0) {
+      return res.status(400).json({ message: "Datos incompletos o inválidos" });
+    }
+
+    try {
+      const group = await Group.findByPk(id);
+      if (!group) {
+        return res.status(404).json({ message: "Grupo no encontrado" });
+      }
+
+      const promises = students.map(async ({ student_code }) => {
+        // Buscar estudiante usando `student_code` como clave primaria
+        const student = await Student.findOne({ where: { student_code } });
+
+        if (!student) {
+          throw new Error(
+            `Estudiante con código ${student_code} no encontrado`
+          );
+        }
+
+        // Asociar estudiante con el grupo
+        student.group_id = id;
+        await student.save();
+
+        // Crear o buscar el curso asociado al estudiante usando `student_code`
+        const course = await Courses.findOne({
+          where: { student_id: student.student_code },
+        });
+
+        if (course) {
+          // Actualizar curso existente
+          course.group_id = id;
+          await course.save();
+        } else {
+          // Crear nuevo curso
+          await Courses.create({
+            student_id: student.student_code,
+            grade: 0,
+            status: "pendiente",
+          });
+        }
+      });
+
+      await Promise.all(promises);
+
+      return res
+        .status(200)
+        .json({ message: "Estudiantes agregados al grupo exitosamente" });
+    } catch (error) {
+      console.error("Error al agregar estudiantes al grupo:", error);
+      return res
+        .status(500)
+        .json({ message: `Error al agregar estudiantes: ${error.message}` });
+    }
+  }
+
+  // Controlador para guardar las notas de los estudiantes
+  async saveStudentGrade(req, res) {
+    try {
+      const { student_code, idCourse, grade } = req.body;
+
+      // Validar si el estudiante pertenece al curso
+      const student = await Student.findByPk(student_code);
+      if (!student || student.student_code !== idCourse) {
+        return res.status(400).json({
+          message: "El estudiante no está registrado en este curso",
+        });
+      }
+
+      // Actualizar o crear el registro de nota en `Courses`
+      await Courses.upsert({
+        user_id: student_code,
+        grade,
+      });
+
+      res.status(200).json({ message: "Nota guardada correctamente" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error al guardar la nota" });
+    }
+  }
+
+  /*  async getStudentsByGroup(req, res) {
+    const { groupId } = req.params;
+
+    try {
+      // Verificar si el grupo existe
+      const group = await Group.findByPk(groupId);
+      if (!group) {
+        return res.status(404).json({ message: "Grupo no encontrado" });
+      }
+
+      // Obtener los estudiantes del grupo junto con sus calificaciones
+      const students = await Student.findAll({
+        where: { group_id: groupId },
+        attributes: ["student_code", "student_name"],
+        include: [
+          {
+            model: Courses,
+            attributes: ["grade"],
+            required: false, // Incluye estudiantes incluso si no tienen calificaciones
+            where: { group_id: groupId },
+          },
+        ],
+      });
+
+      // Mapear los datos para formatearlos según lo esperado en el frontend
+      const formattedStudents = students.map((student) => ({
+        student_code: student.student_code,
+        student_name: student.student_name,
+        grade: student.Courses?.grade || null, // Asignar null si no tiene calificación
+      }));
+
+      return res.status(200).json({ students: formattedStudents });
+    } catch (error) {
+      console.error("Error al obtener los estudiantes del grupo:", error);
+      return res.status(500).json({ message: "Error interno del servidor" });
+    }
+  } */
 }
 
 module.exports = new GroupController();

@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/users");
 const groupController = require("../controllers/groups");
-const gradeController = require("../controllers/grades");
 const facultadController = require("../controllers/facultades");
 const { isAdmin, isTeacher } = require("../middlewares/authMiddleware");
 const { rateLimiter } = require("../middlewares/rateLimiterMiddleware");
@@ -20,7 +19,10 @@ router.get("/users/students", userController.getAllStudents);
 
 //#region GET
 router.get("/groups", groupController.getAllGroups);
-router.get("/groups/professor", groupController.getGroupsByProfessor);
+router.get(
+  "/groups/professor/:profesorName",
+  groupController.getGroupsByProfessor
+);
 router.get("/professors", groupController.getAllProfessors);
 
 //obtener los programas
@@ -55,6 +57,8 @@ router.get(
   facultadController.generateFacultyReport
 );
 
+router.get("/groups/:groupId", groupController.getGroupsByProfessor);
+
 //#region POST
 router.post(
   "/groups",
@@ -76,12 +80,10 @@ router.post(
   userController.register
 );
 
-/* router.put(
-  "/students/:studentCode/grade",
-  validateCourseGrade,
-  gradeController.linkStudentToCourseAndSaveGrade
-);
- */
+router.post("/addStudent", groupController.addStudentesToGroup);
+
+router.post("/saveGrade", groupController.saveStudentGrade);
+
 //#region PUT
 router.put("/users", isAdmin, userController.updateUser);
 

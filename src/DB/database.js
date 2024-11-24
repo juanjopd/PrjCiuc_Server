@@ -70,6 +70,18 @@ Grades.belongsTo(Students, { foreignKey: "student_id" });
 Students.belongsTo(Groups, { foreignKey: "group_id" });
 Groups.hasMany(Students, { foreignKey: "group_id" });
 
-// Relacion N:1 entre programam y facultad
+// Relacion N:1 entre programa y facultad
 Facultad.hasMany(Programs, { foreignKey: "facultad_id" });
 Programs.belongsTo(Facultad, { foreignKey: "facultad_id" });
+
+Students.hasMany(Courses, {
+  foreignKey: "student_id", // Nombre de la columna en Courses
+  sourceKey: "student_code", // Llave primaria en Students
+  as: "courses", // Alias para la relación
+});
+
+Courses.belongsTo(Students, {
+  foreignKey: "student_id", // Nombre de la columna en Courses
+  targetKey: "student_code", // Llave primaria en Students
+  as: "student", // Alias para la relación
+});
